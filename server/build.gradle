@@ -1,0 +1,12 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'junit:junit:4.12'
+    implementation files('libs/sqlite-jdbc-3.23.1.jar')
+    implementation files('libs/junit-4.12.jar')
+    implementation files('libs/gson-2.6.2.jar')
+}
+
+sourceCompatibility = "7"
+targetCompatibility = "7"

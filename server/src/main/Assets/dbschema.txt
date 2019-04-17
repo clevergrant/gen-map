@@ -1,0 +1,57 @@
+DROP TABLE IF EXISTS Users;
+CREATE TABLE IF NOT EXISTS Users (
+	userName TEXT NOT NULL UNIQUE,
+	password TEXT NOT NULL,
+	email TEXT NOT NULL,
+	firstName TEXT NOT NULL,
+	lastName TEXT NOT NULL,
+	gender TEXT NOT NULL,
+	personID TEXT NOT NULL,
+
+    PRIMARY KEY (userName),
+	FOREIGN KEY (personID) REFERENCES Persons(personID)
+);
+
+DROP TABLE IF EXISTS Persons;
+CREATE TABLE IF NOT EXISTS Persons (
+	personID TEXT NOT NULL UNIQUE,
+	descendant TEXT NOT NULL,
+	firstName TEXT NOT NULL,
+	lastName TEXT NOT NULL,
+	gender TEXT NOT NULL,
+	father TEXT NOT NULL,
+	mother TEXT NOT NULL,
+	spouse TEXT NOT NULL,
+
+    PRIMARY KEY (personID),
+	FOREIGN KEY (descendant) REFERENCES Users(userName),
+	FOREIGN KEY (father) REFERENCES Persons(personID),
+	FOREIGN KEY (mother) REFERENCES Persons(personID),
+	FOREIGN KEY (spouse) REFERENCES Persons(personID)
+);
+
+DROP TABLE IF EXISTS AuthTokens;
+CREATE TABLE IF NOT EXISTS AuthTokens (
+    token TEXT NOT NULL UNIQUE,
+    userName TEXT NOT NULL,
+
+    PRIMARY KEY (token),
+    FOREIGN KEY (userName) REFERENCES Users(userName)
+);
+
+DROP TABLE IF EXISTS Events;
+CREATE TABLE IF NOT EXISTS Events (
+    eventID TEXT NOT NULL UNIQUE,
+    descendant TEXT NOT NULL,
+    personID TEXT NOT NULL,
+    latitude FLOAT NOT NULL,
+    longitude FLOAT NOT NULL,
+    country TEXT NOT NULL,
+    city TEXT NOT NULL,
+    eventType TEXT NOT NULL,
+    year INT NOT NULL,
+
+    PRIMARY KEY (eventID),
+    FOREIGN KEY (descendant) REFERENCES Users(userName),
+    FOREIGN KEY (personID) REFERENCES Persons(personID)
+);

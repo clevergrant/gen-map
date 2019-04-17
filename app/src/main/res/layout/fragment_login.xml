@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/login_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.clevergrant.fragments.LoginFragment">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginBottom="32dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/login-domain-lbl"
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:text="@string/login_domain"
+                android:textSize="18sp"
+                app:layout_constraintBaseline_toBaselineOf="@+id/login-domain"
+                app:layout_constraintEnd_toStartOf="@+id/login-domain"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <EditText
+                android:id="@+id/login-domain"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text|number"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/login-domain-lbl"
+                app:layout_constraintTop_toBottomOf="@+id/login-gender-male"
+                tools:ignore="Autofill,LabelFor" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/login-port-lbl"
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:text="@string/login_port"
+                android:textSize="18sp"
+                app:layout_constraintBaseline_toBaselineOf="@+id/login-port"
+                app:layout_constraintEnd_toStartOf="@+id/login-port"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <EditText
+                android:id="@+id/login-port"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/login-port-lbl"
+                app:layout_constraintTop_toBottomOf="@+id/login-domain"
+                tools:ignore="Autofill,LabelFor" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/login-user-lbl"
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:text="@string/login_user"
+                android:textSize="18sp"
+                app:layout_constraintBaseline_toBaselineOf="@+id/login-user"
+                app:layout_constraintEnd_toStartOf="@+id/login-user"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <EditText
+                android:id="@+id/login-user"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/login-user-lbl"
+                app:layout_constraintTop_toBottomOf="@+id/login-email"
+                tools:ignore="Autofill,LabelFor" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/login-pass-lbl"
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:text="@string/login_pass"
+                android:textSize="18sp"
+                app:layout_constraintBaseline_toBaselineOf="@+id/login-pass"
+                app:layout_constraintEnd_toStartOf="@+id/login-pass"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <EditText
+                android:id="@+id/login-pass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPassword"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/login-pass-lbl"
+                app:layout_constraintTop_toBottomOf="@+id/login-button-login"
+                tools:ignore="Autofill,LabelFor" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/login-first-lbl"
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:text="@string/login_first"
+                android:textSize="18sp"
+                app:layout_constraintBaseline_toBaselineOf="@+id/login-first"
+                app:layout_constraintEnd_toStartOf="@+id/login-first"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <EditText
+                android:id="@+id/login-first"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPersonName"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/login-first-lbl"
+                app:layout_constraintTop_toBottomOf="@+id/login-last"
+                tools:ignore="Autofill,LabelFor" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/login-last-lbl"
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:text="@string/login_last"
+                android:textSize="18sp"
+                app:layout_constraintBaseline_toBaselineOf="@+id/login-last"
+                app:layout_constraintEnd_toStartOf="@+id/login-last"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <EditText
+                android:id="@+id/login-last"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPersonName"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/login-last-lbl"
+                app:layout_constraintTop_toBottomOf="@+id/login-pass"
+                tools:ignore="Autofill,LabelFor" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/login-email-lbl"
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:text="@string/login_email"
+                android:textSize="18sp"
+                app:layout_constraintBaseline_toBaselineOf="@+id/login-email"
+                app:layout_constraintEnd_toStartOf="@+id/login-email"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <EditText
+                android:id="@+id/login-email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textEmailAddress"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/login-email-lbl"
+                app:layout_constraintTop_toBottomOf="@+id/login-first"
+                tools:ignore="Autofill,LabelFor" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/login-gender-lbl"
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:text="@string/login_gender"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toStartOf="@+id/login-gender-male"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/login-gender-male" />
+
+            <RadioGroup
+                android:id="@+id/login-gender"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/login-gender-male"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="false"
+                    android:text="@string/login_gender_male" />
+
+                <RadioButton
+                    android:id="@+id/login-gender-female"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/login_gender_female" />
+            </RadioGroup>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/login-button-register"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:state_enabled="false"
+                android:text="@string/login_button_register"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/login-button-login"
+                app:layout_constraintTop_toBottomOf="@+id/login-port" />
+
+            <Button
+                android:id="@+id/login-button-login"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:state_enabled="false"
+                android:text="@string/login_button_login"
+                app:layout_constraintBaseline_toBaselineOf="@+id/login-button-register"
+                app:layout_constraintEnd_toStartOf="@+id/login-button-register"
+                app:layout_constraintStart_toStartOf="parent" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</android.support.constraint.ConstraintLayout>
