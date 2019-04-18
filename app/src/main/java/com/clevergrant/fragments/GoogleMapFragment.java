@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,10 +15,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.clevergrant.fammap.AppCompatPreferenceActivity;
+import com.clevergrant.fammap.FilterActivity;
+import com.clevergrant.fammap.PersonActivity;
 import com.clevergrant.fammap.R;
+import com.clevergrant.fammap.SearchActivity;
 import com.clevergrant.fammap.SettingsActivity;
 import com.clevergrant.model.Event;
 import com.clevergrant.model.Model;
@@ -36,6 +39,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
+import static android.app.Activity.RESULT_OK;
+
 public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
 	AppCompatActivity mainActivity;
@@ -51,9 +56,7 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
 
 	private Model m = Model.getInstance();
 
-	public static final String SETTINGS = "com.example.clevergrant.fammap.SETTINGS";
-
-	// Attach/Detach/Create Handlers
+	// Lifecycle Handlers
 
 	@Override
 	public void onAttach(Context context) {
@@ -78,7 +81,13 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
 		super.onCreate(savedInstanceState);
 	}
 
-	// Initializers
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (map != null) map.setMapType(m.store.getMapType(getActivity()));
+	}
+
+// Initializers
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -86,6 +95,15 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
 
 		displayedImage = view.findViewById(R.id.imageView);
 		displayedText = view.findViewById(R.id.textView);
+
+		LinearLayout eventArea = view.findViewById(R.id.event_area);
+		eventArea.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getActivity(), PersonActivity.class);
+				startActivityForResult(intent, Model.ResultCodes.OK);
+			}
+		});
 
 		SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
 
@@ -109,7 +127,10 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
 		for (Event event : m.getEvents().values()) {
 			LatLng ll = new LatLng(event.getLatitude(), event.getLongitude());
 
-			BitmapDescriptor color = defineColor(event.getEventType());
+			String et = event.getEventType();
+
+			m.addEventColor(event.getEventType().toLowerCase());
+			BitmapDescriptor color = defineColor(event.getEventType().toLowerCase());
 
 			Person person = m.getPersons().get(event.getPersonID());
 			if (person != null)
@@ -121,6 +142,7 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
 				).setTag(event);
 		}
 
+		map.setMapType(m.store.getMapType(getActivity()));
 		map.setOnMarkerClickListener(this);
 	}
 
@@ -141,9 +163,11 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
 
 				Person spouse = m.getPersons().get(p.getSpouse());
 
-				if (spouse != null) addRelativeLine(spouse, marker.getPosition(), 0xFFB388FF, 12);
-				addFamilyLines(p, marker.getPosition(), 0xFFB2FF59, 15);
-				addLifeStoryLines(p);
+				if (spouse != null && m.store.getSpouseLine(getActivity()))
+					addRelativeLine(spouse, marker.getPosition(), m.store.getSpouseColor(getActivity()), 12);
+				if (m.store.getFamilyTreeLine(getActivity()))
+					addFamilyLines(p, marker.getPosition(), m.store.getFamilyTreeColor(getActivity()), 15);
+				if (m.store.getLifeStoryLine(getActivity())) addLifeStoryLines(p);
 
 				displayedImage.setBackgroundResource(genderIcon);
 				displayedText.setText(String.format("%s %s\n%s in %d\n%s, %s", p.getFirstName(), p.getLastName(), type, e.getYear(), e.getCity(), e.getCountry()));
@@ -154,17 +178,22 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent;
 		switch (item.getItemId()) {
 
 			case R.id.action_search:
+				intent = new Intent(getActivity(), SearchActivity.class);
+				startActivityForResult(intent, Model.ResultCodes.OK);
 				return true;
 
 			case R.id.action_filter:
+				intent = new Intent(getActivity(), FilterActivity.class);
+				startActivityForResult(intent, Model.ResultCodes.OK);
 				return true;
 
 			case R.id.action_settings:
-				Intent intent = new Intent(getActivity(), SettingsActivity.class);
-				startActivity(intent);
+				intent = new Intent(getActivity(), SettingsActivity.class);
+				startActivityForResult(intent, Model.ResultCodes.OK);
 				return true;
 
 			default:
@@ -172,10 +201,10 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
 		}
 	}
 
-	// Callback Interface
+	// Callback
 
 	public interface OnActionListener {
-//		void act();
+//		void settingsChanged();
 	}
 
 	// Line Drawers
@@ -229,7 +258,7 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
 				if (coordinate != last) {
 					PolylineOptions lineOpt = new PolylineOptions()
 							.add(last, coordinate)
-							.width(12).color(0xFF40C4FF);
+							.width(12).color(m.store.getLifeStoryColor(getActivity()));
 					lines.add(map.addPolyline(lineOpt));
 				}
 				last = coordinate;
@@ -240,16 +269,7 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
 	// Switch Functions
 
 	private BitmapDescriptor defineColor(String eventType) {
-		switch (eventType.toLowerCase()) {
-			case "birth":
-				return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
-			case "death":
-				return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED);
-			case "marriage":
-				return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET);
-			default:
-				return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE);
-		}
+		return BitmapDescriptorFactory.defaultMarker(m.getEventColor(eventType));
 	}
 
 	private String defineType(String t) {
@@ -261,7 +281,7 @@ public class GoogleMapFragment extends Fragment implements OnMapReadyCallback, G
 			case "marriage":
 				return "Married";
 			default:
-				return "Event";
+				return t;
 		}
 	}
 

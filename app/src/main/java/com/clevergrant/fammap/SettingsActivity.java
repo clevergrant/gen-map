@@ -1,273 +1,160 @@
 package com.clevergrant.fammap;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.support.v7.app.ActionBar;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
-import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.view.MenuItem;
-import android.support.v4.app.NavUtils;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Spinner;
+import android.widget.Switch;
 
-import java.util.List;
+import com.clevergrant.client.ServerProxy;
+import com.clevergrant.model.Model;
+import com.google.android.gms.maps.GoogleMap;
 
-/**
- * A {@link PreferenceActivity} that presents a set of application settings. On
- * handset devices, settings are presented as a single list. On tablets,
- * settings are split by category, with category headers shown to the left of
- * the list of settings.
- * <p>
- * See <a href="http://developer.android.com/design/patterns/settings.html">
- * Android Design: Settings</a> for design guidelines and the <a
- * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
- * API Guide</a> for more information on developing a Settings UI.
- */
-public class SettingsActivity extends AppCompatPreferenceActivity {
+public class SettingsActivity extends AppCompatActivity {
 
-	/**
-	 * A preference value change listener that updates the preference's summary
-	 * to reflect its new value.
-	 */
-	private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-		@Override
-		public boolean onPreferenceChange(Preference preference, Object value) {
-			String stringValue = value.toString();
-
-			if (preference instanceof ListPreference) {
-				// For list preferences, look up the correct display value in
-				// the preference's 'entries' list.
-				ListPreference listPreference = (ListPreference) preference;
-				int index = listPreference.findIndexOfValue(stringValue);
-
-				// Set the summary to reflect the new value.
-				preference.setSummary(
-						index >= 0
-								? listPreference.getEntries()[index]
-								: null);
-			} else if (preference instanceof RingtonePreference) {
-				// For ringtone preferences, look up the correct display value
-				// using RingtoneManager.
-				if (TextUtils.isEmpty(stringValue)) {
-					// Empty values correspond to 'silent' (no ringtone).
-					preference.setSummary(R.string.pref_ringtone_silent);
-				} else {
-					Ringtone ringtone = RingtoneManager.getRingtone(
-							preference.getContext(), Uri.parse(stringValue));
-
-					if (ringtone == null) {
-						// Clear the summary if there was a lookup error.
-						preference.setSummary(null);
-					} else {
-						// Set the summary to reflect the new ringtone display
-						// name.
-						String name = ringtone.getTitle(preference.getContext());
-						preference.setSummary(name);
-					}
-				}
-			} else {
-				// For all other preferences, set the summary to the value's
-				// simple string representation.
-				preference.setSummary(stringValue);
-			}
-			return true;
-		}
-	};
-
-	/**
-	 * Binds a preference's summary to its value. More specifically, when the
-	 * preference's value is changed, its summary (line of text below the
-	 * preference title) is updated to reflect the value. The summary is also
-	 * immediately updated upon calling this method. The exact display format is
-	 * dependent on the type of preference.
-	 *
-	 * @see #sBindPreferenceSummaryToValueListener
-	 */
-	private static void bindPreferenceSummaryToValue(Preference preference) {
-		// Set the listener to watch for value changes.
-		preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
-
-		// Trigger the listener immediately with the preference's
-		// current value.
-		sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-				PreferenceManager
-						.getDefaultSharedPreferences(preference.getContext())
-						.getString(preference.getKey(), ""));
-	}
+	Model m = Model.getInstance();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setupActionBar();
-	}
+		setContentView(R.layout.activity_settings);
 
-	/**
-	 * Set up the {@link android.app.ActionBar}, if the API is available.
-	 */
-	private void setupActionBar() {
-		Toolbar myToolbar = findViewById(R.id.my_toolbar);
-		myToolbar.setTitle("Settings");
-		setSupportActionBar(myToolbar);
-
-		ActionBar actionBar = getSupportActionBar();
-
-		if (actionBar != null) {
-			// Show the Up button in the action bar.
-			actionBar.setTitle("Settings");
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
-	}
-
-	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		int id = item.getItemId();
-		if (id == android.R.id.home) {
-			if (!super.onMenuItemSelected(featureId, item)) {
-				NavUtils.navigateUpFromSameTask(this);
+		Switch switchLifeStory = findViewById(R.id.switch_life_story);
+		switchLifeStory.setChecked(m.store.getLifeStoryLine(this));
+		switchLifeStory.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				m.store.setLifeStoryLine(buttonView.getContext(), isChecked);
 			}
-			return true;
-		}
-		return super.onMenuItemSelected(featureId, item);
-	}
+		});
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean onIsMultiPane() {
-		return isXLargeTablet(this);
-	}
-
-	/**
-	 * Helper method to determine if the device has an extra-large screen. For
-	 * example, 10" tablets are extra-large.
-	 */
-	private static boolean isXLargeTablet(Context context) {
-		return (context.getResources().getConfiguration().screenLayout
-				& Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public void onBuildHeaders(List<Header> target) {
-		loadHeadersFromResource(R.xml.pref_headers, target);
-	}
-
-	/**
-	 * This method stops fragment injection in malicious applications.
-	 * Make sure to deny any unknown fragments here.
-	 */
-	protected boolean isValidFragment(String fragmentName) {
-		return PreferenceFragment.class.getName().equals(fragmentName)
-				|| GeneralPreferenceFragment.class.getName().equals(fragmentName)
-				|| DataSyncPreferenceFragment.class.getName().equals(fragmentName)
-				|| NotificationPreferenceFragment.class.getName().equals(fragmentName);
-	}
-
-	/**
-	 * This fragment shows general preferences only. It is used when the
-	 * activity is showing a two-pane settings UI.
-	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public static class GeneralPreferenceFragment extends PreferenceFragment {
-		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.pref_general);
-			setHasOptionsMenu(true);
-
-			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
-			// to their values. When their values change, their summaries are
-			// updated to reflect the new value, per the Android Design
-			// guidelines.
-			bindPreferenceSummaryToValue(findPreference("example_text"));
-			bindPreferenceSummaryToValue(findPreference("example_list"));
-		}
-
-		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
-			int id = item.getItemId();
-			if (id == android.R.id.home) {
-				startActivity(new Intent(getActivity(), SettingsActivity.class));
-				return true;
+		Switch switchFamilyTree = findViewById(R.id.switch_family_tree);
+		switchFamilyTree.setChecked(m.store.getFamilyTreeLine(this));
+		switchFamilyTree.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				m.store.setFamilyTreeLine(buttonView.getContext(), isChecked);
 			}
-			return super.onOptionsItemSelected(item);
-		}
-	}
+		});
 
-	/**
-	 * This fragment shows notification preferences only. It is used when the
-	 * activity is showing a two-pane settings UI.
-	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public static class NotificationPreferenceFragment extends PreferenceFragment {
-		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.pref_notification);
-			setHasOptionsMenu(true);
-
-			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
-			// to their values. When their values change, their summaries are
-			// updated to reflect the new value, per the Android Design
-			// guidelines.
-			bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-		}
-
-		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
-			int id = item.getItemId();
-			if (id == android.R.id.home) {
-				startActivity(new Intent(getActivity(), SettingsActivity.class));
-				return true;
+		Switch switchSpouse = findViewById(R.id.switch_spouse);
+		switchSpouse.setChecked(m.store.getSpouseLine(this));
+		switchSpouse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				m.store.setSpouseLine(buttonView.getContext(), isChecked);
 			}
-			return super.onOptionsItemSelected(item);
-		}
-	}
+		});
 
-	/**
-	 * This fragment shows data and sync preferences only. It is used when the
-	 * activity is showing a two-pane settings UI.
-	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public static class DataSyncPreferenceFragment extends PreferenceFragment {
-		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.pref_data_sync);
-			setHasOptionsMenu(true);
-
-			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
-			// to their values. When their values change, their summaries are
-			// updated to reflect the new value, per the Android Design
-			// guidelines.
-			bindPreferenceSummaryToValue(findPreference("sync_frequency"));
-		}
-
-		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
-			int id = item.getItemId();
-			if (id == android.R.id.home) {
-				startActivity(new Intent(getActivity(), SettingsActivity.class));
-				return true;
+		ArrayAdapter<String> lifeStoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, m.colorResource.markerSpinnerColors);
+		lifeStoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		Spinner spinnerLifeStory = findViewById(R.id.spinner_life_story);
+		spinnerLifeStory.setAdapter(lifeStoryAdapter);
+		spinnerLifeStory.setSelection(m.store.getLifeStoryColorPosition(this));
+		spinnerLifeStory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				m.store.setLifeStoryColor(parent.getContext(), m.colorResource.lineColors.get(parent.getItemAtPosition(position).toString()));
+				m.store.setLifeStoryColorPosition(parent.getContext(), position);
 			}
-			return super.onOptionsItemSelected(item);
-		}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
+		});
+
+		ArrayAdapter<String> familyTreeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, m.colorResource.markerSpinnerColors);
+		familyTreeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		Spinner spinnerFamilyTree = findViewById(R.id.spinner_family_tree);
+		spinnerFamilyTree.setAdapter(familyTreeAdapter);
+		spinnerFamilyTree.setSelection(m.store.getFamilyTreeColorPosition(this));
+		spinnerFamilyTree.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				m.store.setFamilyTreeColor(parent.getContext(), m.colorResource.lineColors.get(parent.getItemAtPosition(position).toString()));
+				m.store.setFamilyTreeColorPosition(parent.getContext(), position);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
+		});
+
+		ArrayAdapter<String> spouseAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, m.colorResource.markerSpinnerColors);
+		spouseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		Spinner spinnerSpouse = findViewById(R.id.spinner_spouse);
+		spinnerSpouse.setAdapter(spouseAdapter);
+		spinnerSpouse.setSelection(m.store.getSpouseColorPosition(this));
+		spinnerSpouse.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				m.store.setSpouseColor(parent.getContext(), m.colorResource.lineColors.get(parent.getItemAtPosition(position).toString()));
+				m.store.setSpouseColorPosition(parent.getContext(), position);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
+		});
+
+		ArrayAdapter<String> mapAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, m.mapResource.types);
+		mapAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		Spinner spinnerMap = findViewById(R.id.spinner_map_type);
+		spinnerMap.setAdapter(mapAdapter);
+		spinnerMap.setSelection(m.store.getMapTypePosition(this));
+		spinnerMap.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				switch (parent.getItemAtPosition(position).toString()) {
+					case "Satellite":
+						m.store.setMapType(parent.getContext(), GoogleMap.MAP_TYPE_SATELLITE);
+						break;
+					case "Terrain":
+						m.store.setMapType(parent.getContext(), GoogleMap.MAP_TYPE_TERRAIN);
+						break;
+					case "Hybrid":
+						m.store.setMapType(parent.getContext(), GoogleMap.MAP_TYPE_HYBRID);
+						break;
+					default:
+						m.store.setMapType(parent.getContext(), GoogleMap.MAP_TYPE_NORMAL);
+						break;
+				}
+				m.store.setMapTypePosition(parent.getContext(), position);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
+		});
+
+		Button buttonSync = findViewById(R.id.button_sync);
+		buttonSync.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setResult(Model.ResultCodes.SYNCHRONIZE, new Intent());
+				finish();
+			}
+		});
+
+		Button buttonLogout = findViewById(R.id.button_logout);
+		buttonLogout.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setResult(Model.ResultCodes.LOGOUT, new Intent());
+				finish();
+			}
+		});
+
+		Toolbar toolbar = findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+
+		ActionBar ab = getSupportActionBar();
+		if (ab != null) ab.setDisplayHomeAsUpEnabled(true);
 	}
 }

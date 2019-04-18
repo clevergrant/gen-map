@@ -1,9 +1,11 @@
 package com.clevergrant.fammap;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +27,12 @@ import com.clevergrant.tasks.SyncDataTask;
 import androidx.navigation.Navigation;
 
 public class MainActivity extends AppCompatActivity implements LoginFragment.OnActionListener, GoogleMapFragment.OnActionListener, ServerProxy.CallbackListener {
+
+	// is it the first load?
+
+	boolean first = true;
+
+	// Lifecycle Methods
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +58,29 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnA
 		ActionBar bar = getSupportActionBar();
 		if (bar != null) {
 			bar.setTitle("Family Map");
+		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		first = false;
+		switch (resultCode) {
+			case Model.ResultCodes.SYNCHRONIZE:
+				ServerProxy server = new ServerProxy(this);
+				server.syncData();
+				break;
+			case Model.ResultCodes.LOGOUT:
+				Model.clear();
+				setLoginFragment(true);
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -106,11 +137,8 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnA
 			Toast.makeText(this, result.getMessage(), Toast.LENGTH_LONG).show();
 		} else {
 			Model m = Model.getInstance();
-
 			m.setPersonID(result.getPersonID());
-
 			Model.setToken(result.getUserName(), result.getToken());
-
 			SharedPreferences.Editor editor = getPreferences(this).edit();
 			editor.putString("Authorization", result.getToken()).apply();
 			editor.putString("ServerHost", Model.getHostIp()).apply();
@@ -135,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnA
 		if (message != null && !message.isEmpty())
 			Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 		else {
+			Model.clearData();
 
 			Model m = Model.getInstance();
 
@@ -150,9 +179,13 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnA
 			Person p = Model.getPerson();
 			Model.setUser(new User(p.getDescendant(), null, null, p.getFirstName(), p.getLastName(), p.getGender(), p.getPersonID()));
 
-			Toast t = Toast.makeText(this, String.format("Welcome back, %s %s!", m.getFirstName(), m.getLastName()), Toast.LENGTH_SHORT);
-			t.setGravity(Gravity.TOP, 0, 15);
-			t.show();
+			if (first) {
+				Toast t = Toast.makeText(this, String.format("Welcome back, %s %s!", m.getFirstName(), m.getLastName()), Toast.LENGTH_SHORT);
+				t.setGravity(Gravity.TOP, 0, 200);
+				t.show();
+			} else {
+				Toast.makeText(this, "Synced with Server", Toast.LENGTH_SHORT).show();
+			}
 
 			setMapFragment(true);
 		}

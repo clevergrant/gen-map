@@ -26,15 +26,6 @@ import com.clevergrant.model.Model;
  */
 public class LoginFragment extends Fragment {
 
-//	private String serverHost = "";
-//	private String serverPort = "";
-//	private String username = "";
-//	private String password = "";
-//	private String firstName = "";
-//	private String lastName = "";
-//	private String email = "";
-//	private String gender = "";
-
 	private OnActionListener actionListener;
 
 	public void setOnActionListener(AppCompatActivity activity) {
@@ -117,6 +108,7 @@ public class LoginFragment extends Fragment {
 		final View v = inflater.inflate(R.layout.fragment_login, container, false);
 
 		final Model m = Model.getInstance();
+		Model.clear();
 
 		m.fromSharedPref(getActivity());
 

@@ -146,7 +146,7 @@ public class HttpClient {
 
 	// Util
 
-	private static String readString(InputStream is) throws IOException {
+	public static String readString(InputStream is) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		InputStreamReader sr = new InputStreamReader(is);
 		char[] buf = new char[1024];
@@ -157,7 +157,7 @@ public class HttpClient {
 		return sb.toString();
 	}
 
-	private static void writeString(String str, OutputStream os) throws IOException {
+	public static void writeString(String str, OutputStream os) throws IOException {
 		OutputStreamWriter sw = new OutputStreamWriter(os);
 		sw.write(str);
 		sw.flush();
